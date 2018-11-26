@@ -29,9 +29,9 @@ func main() {
 			fmt.Printf("\njob %d awaiting to be started", counter)
 
 			j := job.New(counter, s)
-			p.AddJob(j)
+			p.Add(j)
 
-			fmt.Printf("\njob %d added, total is %d", counter, p.CountJobs())
+			fmt.Printf("\njob %d added, total is %d", counter, p.Count())
 		}
 
 		time.Sleep(time.Second * 1)

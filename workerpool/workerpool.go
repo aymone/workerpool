@@ -7,7 +7,7 @@ type Worker interface {
 
 type pool struct {
 	name    string
-	jobs    chan Worker
+	workers chan Worker
 	tickets chan bool
 }
 
@@ -15,7 +15,7 @@ type pool struct {
 func New(name string, poolSize int) *pool {
 	p := &pool{
 		name:    name,
-		jobs:    make(chan Worker),
+		workers: make(chan Worker),
 		tickets: make(chan bool, poolSize),
 	}
 
@@ -24,11 +24,11 @@ func New(name string, poolSize int) *pool {
 	return p
 }
 
-func (p *pool) AddJob(j Worker) {
-	p.jobs <- j
+func (p *pool) Add(w Worker) {
+	p.workers <- w
 }
 
-func (p *pool) CountJobs() int {
+func (p *pool) Count() int {
 	return len(p.tickets)
 }
 
@@ -36,11 +36,11 @@ func (p *pool) process() {
 	for {
 		p.tickets <- true
 		select {
-		case job := <-p.jobs:
-			go func(j Worker, tickets chan bool) {
-				j.Do()
+		case worker := <-p.workers:
+			go func(w Worker, tickets chan bool) {
+				w.Do()
 				<-tickets
-			}(job, p.tickets)
+			}(worker, p.tickets)
 		}
 	}
 }
