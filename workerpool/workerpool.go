@@ -1,13 +1,13 @@
 package workerpool
 
-// Job interface
-type Job interface {
+// Jobber interface
+type Jobber interface {
 	Do()
 }
 
 type pool struct {
 	name    string
-	jobs    chan Job
+	jobs    chan Jobber
 	tickets chan bool
 }
 
@@ -15,7 +15,7 @@ type pool struct {
 func New(name string, poolSize int) *pool {
 	p := &pool{
 		name:    name,
-		jobs:    make(chan Job),
+		jobs:    make(chan Jobber),
 		tickets: make(chan bool, poolSize),
 	}
 
@@ -24,7 +24,7 @@ func New(name string, poolSize int) *pool {
 	return p
 }
 
-func (p *pool) AddJob(j Job) {
+func (p *pool) AddJob(j Jobber) {
 	p.jobs <- j
 }
 
@@ -37,7 +37,7 @@ func (p *pool) process() {
 		p.tickets <- true
 		select {
 		case job := <-p.jobs:
-			go func(j Job, tickets chan bool) {
+			go func(j Jobber, tickets chan bool) {
 				j.Do()
 				<-tickets
 			}(job, p.tickets)
