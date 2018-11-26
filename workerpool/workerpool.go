@@ -1,18 +1,15 @@
 package workerpool
 
-import (
-	"fmt"
-)
-
 // Job interface
 type Job interface {
 	Do()
 }
 
 type pool struct {
-	name string
-	size int
-	jobs chan Job
+	name    string
+	size    int
+	jobs    chan Job
+	tickets chan bool
 }
 
 // New starts a pool of workers
@@ -32,14 +29,20 @@ func (p *pool) AddJob(j Job) {
 	p.jobs <- j
 }
 
+func (p *pool) CountJobs() int {
+	return len(p.tickets)
+}
+
 func (p *pool) process() {
-	tickets := make(chan bool, p.size)
-	fmt.Printf("\nProcessing pool '%s' with %d workers", p.name, p.size)
-	for j := range p.jobs {
-		tickets <- true
-		go func(j Job, t chan bool) {
-			j.Do()
-			<-t
-		}(j, tickets)
+	p.tickets = make(chan bool, p.size)
+	for {
+		p.tickets <- true
+		select {
+		case job := <-p.jobs:
+			go func(j Job, tickets chan bool) {
+				j.Do()
+				<-tickets
+			}(job, p.tickets)
+		}
 	}
 }

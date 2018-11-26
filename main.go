@@ -24,14 +24,14 @@ func main() {
 		fmt.Print("\nChecking jobs")
 
 		hasJob := rand.Intn(3)
-		if hasJob > 0 {
+		if hasJob > 1 {
 			counter++
 			fmt.Printf("\njob %d awaiting to be started", counter)
 
 			j := job.New(counter, s)
 			p.AddJob(j)
 
-			fmt.Printf("\njob %d added", counter)
+			fmt.Printf("\njob %d added, total is %d", counter, p.CountJobs())
 		}
 
 		time.Sleep(time.Second * 1)
