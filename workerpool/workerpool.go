@@ -7,7 +7,6 @@ type Job interface {
 
 type pool struct {
 	name    string
-	size    int
 	jobs    chan Job
 	tickets chan bool
 }
@@ -15,9 +14,9 @@ type pool struct {
 // New starts a pool of workers
 func New(name string, poolSize int) *pool {
 	p := &pool{
-		name: name,
-		size: poolSize,
-		jobs: make(chan Job),
+		name:    name,
+		jobs:    make(chan Job),
+		tickets: make(chan bool, poolSize),
 	}
 
 	go p.process()
@@ -34,7 +33,6 @@ func (p *pool) CountJobs() int {
 }
 
 func (p *pool) process() {
-	p.tickets = make(chan bool, p.size)
 	for {
 		p.tickets <- true
 		select {
