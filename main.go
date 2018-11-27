@@ -38,19 +38,19 @@ func main() {
 			hasJob := rand.Intn(3)
 			if hasJob > 1 {
 				counter++
-				fmt.Printf("\njob %d awaiting to be started", counter)
+				fmt.Printf("\nJob %d awaiting to be started", counter)
 
 				j := job.New(counter, s)
 				p.Add(j)
 
-				fmt.Printf("\njob %d added, total is %d", counter, p.Count())
+				fmt.Printf("\nJob %d added, total is %d", counter, p.Count())
 			}
 
 			time.Sleep(time.Second * 1)
 
 			select {
 			case <-ctx.Done():
-				fmt.Println("tock: caller has told us to stop")
+				fmt.Println("\nMain: caller has told us to stop to check new jobs")
 				return
 			default:
 				continue
@@ -62,13 +62,13 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
-	fmt.Println("main: received C-c - shutting down")
+	fmt.Println("\nMain: received C-c - shutting down")
 
 	// tell the goroutines to stop
-	fmt.Println("main: telling goroutines to stop")
+	fmt.Println("\nMain: telling goroutines to stop")
 	cancel()
 
 	// and wait for them both to reply back
 	wg.Wait()
-	fmt.Println("main: all goroutines have told us they've finished")
+	fmt.Println("\nMain: all goroutines have told us they've finished")
 }

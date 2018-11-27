@@ -61,7 +61,7 @@ func (p *pool) process() {
 			}(worker, p.tickets, p.wg)
 
 		case <-p.ctx.Done():
-			fmt.Println("process: caller has told us to stop")
+			fmt.Println("\nProcess: caller has told us to stop to get jobs")
 			return
 		}
 	}
