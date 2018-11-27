@@ -46,13 +46,12 @@ func main() {
 				fmt.Printf("\nJob %d added, total is %d", counter, p.Count())
 			}
 
-			time.Sleep(time.Second * 1)
-
 			select {
 			case <-ctx.Done():
 				fmt.Println("\nMain: caller has told us to stop to check new jobs")
 				return
 			default:
+				time.Sleep(time.Second * 1)
 				continue
 			}
 		}
