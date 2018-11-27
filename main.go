@@ -24,7 +24,7 @@ func main() {
 	wg := &sync.WaitGroup{}
 
 	// pool
-	p := workerpool.New(ctx, wg, "My pool", poolSize)
+	p := workerpool.New(ctx, wg, poolSize)
 
 	// service
 	s := service.New()

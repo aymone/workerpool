@@ -12,7 +12,6 @@ type Worker interface {
 }
 
 type pool struct {
-	name    string
 	ctx     context.Context
 	wg      *sync.WaitGroup
 	workers chan Worker
@@ -20,9 +19,8 @@ type pool struct {
 }
 
 // New starts a pool of workers
-func New(ctx context.Context, wg *sync.WaitGroup, name string, poolSize int) *pool {
+func New(ctx context.Context, wg *sync.WaitGroup, poolSize int) *pool {
 	p := &pool{
-		name:    name,
 		ctx:     ctx,
 		wg:      wg,
 		workers: make(chan Worker),
