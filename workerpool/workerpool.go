@@ -1,5 +1,11 @@
 package workerpool
 
+import (
+	"context"
+	"fmt"
+	"sync"
+)
+
 // Worker interface
 type Worker interface {
 	Do()
@@ -7,14 +13,18 @@ type Worker interface {
 
 type pool struct {
 	name    string
+	ctx     context.Context
+	wg      *sync.WaitGroup
 	workers chan Worker
 	tickets chan bool
 }
 
 // New starts a pool of workers
-func New(name string, poolSize int) *pool {
+func New(ctx context.Context, wg *sync.WaitGroup, name string, poolSize int) *pool {
 	p := &pool{
 		name:    name,
+		ctx:     ctx,
+		wg:      wg,
 		workers: make(chan Worker),
 		tickets: make(chan bool, poolSize),
 	}
@@ -37,10 +47,22 @@ func (p *pool) process() {
 		p.tickets <- true
 		select {
 		case worker := <-p.workers:
-			go func(w Worker, tickets chan bool) {
+			if p.wg != nil {
+				p.wg.Add(1)
+			}
+
+			go func(w Worker, tickets chan bool, wg *sync.WaitGroup) {
+				if wg != nil {
+					defer wg.Done()
+				}
+
 				w.Do()
 				<-tickets
-			}(worker, p.tickets)
+			}(worker, p.tickets, p.wg)
+
+		case <-p.ctx.Done():
+			fmt.Println("process: caller has told us to stop")
+			return
 		}
 	}
 }
