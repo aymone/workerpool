@@ -14,6 +14,7 @@ type Worker interface {
 type pool struct {
 	ctx     context.Context
 	wg      *sync.WaitGroup
+	size    int
 	workers chan Worker
 	tickets chan bool
 }
@@ -23,6 +24,7 @@ func New(ctx context.Context, wg *sync.WaitGroup, poolSize int) *pool {
 	p := &pool{
 		ctx:     ctx,
 		wg:      wg,
+		size:    poolSize,
 		workers: make(chan Worker),
 		tickets: make(chan bool, poolSize),
 	}
@@ -38,6 +40,10 @@ func (p *pool) Add(w Worker) {
 
 func (p *pool) Count() int {
 	return len(p.tickets)
+}
+
+func (p *pool) IsAvailable() bool {
+	return len(p.tickets) < p.size
 }
 
 func (p *pool) process() {

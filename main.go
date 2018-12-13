@@ -35,15 +35,22 @@ func main() {
 		for {
 			fmt.Print("\nChecking jobs")
 
-			hasJob := rand.Intn(3)
-			if hasJob > 1 {
-				counter++
-				fmt.Printf("\nJob %d awaiting to be started", counter)
+			if p.IsAvailable() {
+				fmt.Print("\nHas available space on pool :D")
 
-				j := job.New(counter, s)
-				p.Add(j)
+				hasJob := rand.Intn(3)
+				if hasJob > 1 {
+					counter++
+					fmt.Printf("\nJob %d awaiting to be started", counter)
 
-				fmt.Printf("\nJob %d added, total is %d", counter, p.Count())
+					j := job.New(counter, s)
+					p.Add(j)
+
+					fmt.Printf("\nJob %d added, total is %d", counter, p.Count())
+				}
+
+			} else {
+				fmt.Print("\nHasn't available space on pool :( ")
 			}
 
 			select {
